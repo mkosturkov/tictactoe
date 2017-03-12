@@ -3,7 +3,7 @@ def get_best_moves_for_player(player, board):
     player_scores = sorted(get_scores_for_player(player, board), cmp=compare_scores, reverse=True)
     other_player_scores = sorted(get_scores_for_other_player(player, board), cmp=compare_scores, reverse=True)
     comparison_result = compare_scores(player_scores[0], other_player_scores[0])
-    chosen_scores = player_scores if comparison_result >= 0 else other_player_scores
+    chosen_scores = player_scores if comparison_result > 0 else other_player_scores
     return get_top_scores(chosen_scores)
     
 def get_scores_for_player(player, board):
