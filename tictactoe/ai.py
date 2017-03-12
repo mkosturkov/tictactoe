@@ -3,7 +3,7 @@ def get_best_moves_for_player(player, board):
     player_scores = sorted(get_scores_for_player(player, board), cmp=compare_scores, reverse=True)
     other_player_scores = sorted(get_scores_for_other_player(player, board), cmp=compare_scores, reverse=True)
     comparison_result = compare_scores(player_scores[0], other_player_scores[0])
-    chosen_scores = player_scores if comparison_result > 0 else other_player_scores
+    chosen_scores = player_scores if player_scores[0].positions_owned >=  other_player_scores[0].positions_owned else other_player_scores
     return get_top_scores(chosen_scores)
     
 def get_scores_for_player(player, board):
@@ -21,6 +21,7 @@ def get_single_score(is_player_callback, position_with_lines):
     score = Score()
     score.positions_owned = get_most_positions_owned_in_lines_count(is_player_callback, position_with_lines['lines'])
     score.number_of_combinations = get_number_of_possible_combinations(is_player_callback, position_with_lines['lines'])
+    score.blocks_other = blocks_other(is_player_callback, position_with_lines['lines'])
     score.position = position_with_lines['position']
     return score
     
@@ -43,6 +44,13 @@ def get_number_of_possible_combinations(is_player_callback, lines):
                 possible_combinations -= 1
                 break
     return possible_combinations
+
+def blocks_other(is_player_callback, lines):
+    for line in lines:
+        for position in line.positions:
+            if position.is_marked() and not is_player_callback(position.get_marked_player()):
+                return True
+    return False
     
 def get_unmarked_positions(board):
     return [position for row in board.positions for position in row if not position.is_marked()]
@@ -58,7 +66,15 @@ def compare_scores(score1, score2):
     positions_check = score1.positions_owned - score2.positions_owned
     if positions_check != 0:
         return positions_check
-    return score1.number_of_combinations - score2.number_of_combinations
+    combinations_check = score1.number_of_combinations - score2.number_of_combinations
+    if combinations_check != 0:
+        return combinations_check
+    if score1.blocks_other and not score2.blocks_other:
+        return 1
+    if not score1.blocks_other and score2.blocks_other:
+        return -1
+    return 0
+    
 
 def get_top_scores(scores):
     top_scores = [scores[0]]
@@ -70,7 +86,8 @@ def get_top_scores(scores):
 
 class Score:
     
-    def __init__(self, positions_owned=None, number_of_combinations=None, position=None):
+    def __init__(self, positions_owned=None, number_of_combinations=None, blocks_other=None, position=None):
         self.positions_owned = positions_owned
         self.number_of_combinations = number_of_combinations
+        self.blocks_other = blocks_other
         self.position = position

@@ -16,13 +16,16 @@ class TestAI(unittest.TestCase):
         self.board = board.Board(self.board_size)
         
     def test_compare_score_positions_owned(self):
-        self._test_two_way_comparison(ai.Score(2, 2, 'x'), ai.Score(1, 2, 'y'))
+        self._test_two_way_comparison(ai.Score(2, 2, False, 'x'), ai.Score(1, 2, False, 'y'))
         
     def test_compare_score_number_of_combinations(self):
-        self._test_two_way_comparison(ai.Score(2, 2, 'x'), ai.Score(2, 1, 'y'))
-        
+        self._test_two_way_comparison(ai.Score(2, 2, False, 'x'), ai.Score(2, 1, False, 'y'))
+    
+    def test_compare_score_blocks_other(self):
+        self._test_two_way_comparison(ai.Score(2, 2, True, 'x'), ai.Score(2, 2, False, 'y'))
+    
     def test_compare_score_equal(self):
-        self.assertEquals(0, ai.compare_scores(ai.Score(2, 2, 'x'), ai.Score(2, 2, 'y')))
+        self.assertEquals(0, ai.compare_scores(ai.Score(2, 2, False, 'x'), ai.Score(2, 2, False, 'y')))
         
     def test_bind_positions_to_lines(self):
         positions_with_lines = ai.bind_positions_to_lines([self.board.positions[0][0], self.board.positions[1][1]], self.board)
@@ -56,6 +59,13 @@ class TestAI(unittest.TestCase):
         self._set_state_from_filled_positions([(0, 0, self.p2)])
         self.assertEquals(len(lines) - 6, ai.get_number_of_possible_combinations(pf, lines))
         
+    def test_blocks_other(self):
+        pf = lambda p: p == self.p1
+        lines = self.board.get_lines()
+        self.assertFalse(ai.blocks_other(pf, lines))
+        self._set_state_from_filled_positions([(1, 1, self.p2)])
+        self.assertTrue(ai.blocks_other(pf, lines))
+        
     def test_get_single_score(self):
         pf = lambda p: p == self.p1
         lines = self.board.get_lines()
@@ -63,6 +73,8 @@ class TestAI(unittest.TestCase):
         self.assertTrue(isinstance(score, ai.Score))
         self.assertEquals(len(lines), score.number_of_combinations)
         self.assertEquals(0, score.positions_owned)
+        self.assertIsNot(None, score.blocks_other)
+        self.assertFalse(score.blocks_other)
         self.assertEquals(self.board.positions[1][1], score.position)
         
     def test_get_scores(self):
@@ -71,7 +83,7 @@ class TestAI(unittest.TestCase):
         self.assertEquals(self.board_size ** 2 - 1, len(ai.get_scores(lambda _: True, self.board)))
         
     def test_get_top_scores(self):
-        input_scores = [ai.Score(2, 2, 'x'), ai.Score(2, 1, 'x'), ai.Score(2, 2, 'x')]
+        input_scores = [ai.Score(2, 2, False, 'x'), ai.Score(2, 1, False, 'x'), ai.Score(2, 2, False, 'x')]
         top_scores = ai.get_top_scores(input_scores)
         self.assertEquals(2, len(top_scores))
         self.assertIn(top_scores[0], input_scores)
