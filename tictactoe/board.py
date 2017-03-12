@@ -38,11 +38,7 @@ class Board:
     
     def __init__(self, size):
         self._size = size
-        self.positions = []
-        for y in range(size):
-            self.positions.append([])
-            for x in range(size):
-                self.positions[y].append(Position())
+        self.positions = [[Position() for x in range(size)] for y in range(size)]
     
     def get_lines(self):
         lines = []
@@ -50,12 +46,12 @@ class Board:
         diag2 = []
         for i in range(self._size):
             diag1.append(self.positions[i][i])
-            diag2.append(self.positions[self._size - i -1][self._size - i - 1])
+            diag2.append(self.positions[self._size - i - 1][i])
             horizontal = []
             vertical = []
             for j in range(self._size):
-                horizontal.append(self.positions[j][i])
-                vertical.append(self.positions[i][j])
+                horizontal.append(self.positions[i][j])
+                vertical.append(self.positions[j][i])
             lines.append(Line(horizontal))
             lines.append(Line(vertical))
         lines.append(Line(diag1))

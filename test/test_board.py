@@ -56,8 +56,20 @@ class TestBoard(unittest.TestCase):
         self.dimension_size = 3
         self.board = board.Board(self.dimension_size)
     
-    def test_lines_count(self):
-        self.assertEquals(2 * self.dimension_size + 2, len(self.board.get_lines()))
+    def test_get_lines(self):
+        p = self.board.positions
+        expected_lines = [
+            [p[0][0], p[0][1], p[0][2]],
+            [p[0][0], p[1][0], p[2][0]],
+            [p[1][0], p[1][1], p[1][2]],
+            [p[0][1], p[1][1], p[2][1]],
+            [p[2][0], p[2][1], p[2][2]],
+            [p[0][2], p[1][2], p[2][2]],
+            [p[0][0], p[1][1], p[2][2]],
+            [p[2][0], p[1][1], p[0][2]]
+        ]
+        lines = [line.positions for line in self.board.get_lines()];
+        self.assertEquals(expected_lines, lines)
         
     def test_mark_position(self):
         self.board.mark_position(1, 1, 'x')
@@ -65,5 +77,3 @@ class TestBoard(unittest.TestCase):
             self.board.mark_position(1, 1, 'x')
         self.assertTrue(hasattr(context, 'exception'))
         
-    def test_set_state(self):
-        pass
