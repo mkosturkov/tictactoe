@@ -8,6 +8,7 @@ class Game:
         self.board = board
         self.winner = None
         self.observer = None
+        self.error = None
     
     def is_won(self):
         return self.winner != None
@@ -18,7 +19,13 @@ class Game:
         self._observe()
         while True:
             current_player = players[current_player_index]
-            current_player.make_move(self.board)
+            try:
+                current_player.make_move(self.board)
+            except Exception, e:
+                self.error = e.message
+                self._observe()
+                self.error = None
+                continue
             self._set_winner()
             self._observe()
             if self._ended():

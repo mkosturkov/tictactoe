@@ -6,6 +6,10 @@ class ConsoleOutput:
         print
         print
         
+        if game.error:
+            print game.error
+            return
+        
         for rows in game.board.positions:
             rowstr = ' |'
             for position in rows:
